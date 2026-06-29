@@ -1,0 +1,9 @@
+*.pdf
+*.xlsx
+*.xlsm
+*.zip
+*.docx
+*.json
+*.txt
+*.py
+_anxs/
