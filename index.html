@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Permutadores — RPBC · Licitação 7004601205</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#3d4a7c;
+  --navy-dark:#2c3560;
+  --gold:#e8b84b;
+  --gold-light:#f5d580;
+  --bg:#f2f5fa;
+  --white:#ffffff;
+  --text:#1a1a2e;
+  --text-muted:#6b7280;
+  --border:#dde3f0;
+  --card-shadow:0 2px 8px rgba(61,74,124,.12);
+  --sidebar-w:220px;
+}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);background:var(--navy-dark);color:#fff;display:flex;flex-direction:column;min-height:100vh;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+.sidebar-logo{padding:22px 18px 16px;border-bottom:1px solid rgba(255,255,255,.1);}
+.logo-c3{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:38px;color:var(--gold);line-height:1;}
+.logo-sub{font-size:11px;color:rgba(255,255,255,.7);margin-top:2px;font-weight:400;}
+.logo-unit{font-size:11px;color:var(--gold-light);margin-top:8px;font-weight:600;letter-spacing:.5px;}
+.logo-sub2{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px;}
+.sidebar-nav{flex:1;padding:12px 0;}
+.nav-section{font-size:9px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,.35);padding:14px 18px 4px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;padding:9px 18px;cursor:pointer;transition:background .15s;font-size:13px;font-weight:500;color:rgba(255,255,255,.8);gap:9px;border-left:3px solid transparent;}
+.nav-item:hover{background:rgba(255,255,255,.08);}
+.nav-item.active{background:rgba(232,184,75,.15);color:var(--gold-light);border-left-color:var(--gold);}
+.nav-badge{margin-left:auto;background:var(--gold);color:var(--navy-dark);font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;}
+.sidebar-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,.1);font-size:9.5px;color:rgba(255,255,255,.35);line-height:1.5;}
+
+/* MAIN */
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(61,74,124,.06);}
+.topbar-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:var(--navy);}
+.topbar-sub{font-size:11.5px;color:var(--text-muted);margin-top:2px;}
+.topbar-badge{background:var(--navy);color:#fff;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;white-space:nowrap;}
+
+/* CONTENT */
+.content{flex:1;padding:24px 28px;}
+.view{display:none;}
+.view.active{display:block;}
+
+/* CARDS */
+.card{background:var(--white);border-radius:10px;box-shadow:var(--card-shadow);padding:20px;margin-bottom:20px;}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card-title::before{content:'';display:inline-block;width:3px;height:16px;background:var(--gold);border-radius:2px;}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:20px;}
+.kpi{border-radius:10px;padding:18px 20px;color:#fff;box-shadow:var(--card-shadow);}
+.kpi.navy{background:var(--navy);}
+.kpi.gold{background:linear-gradient(135deg,#d4a030,var(--gold));}
+.kpi-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:32px;line-height:1;}
+.kpi.gold .kpi-val{color:var(--navy-dark);}
+.kpi-label{font-size:12px;font-weight:600;margin-top:4px;opacity:.85;}
+.kpi.gold .kpi-label{color:var(--navy-dark);opacity:.8;}
+.kpi-sub{font-size:10.5px;margin-top:5px;opacity:.65;}
+.kpi.gold .kpi-sub{color:var(--navy-dark);opacity:.65;}
+
+/* BAR CHART */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.bar-label{width:180px;font-size:12px;color:var(--text-muted);flex-shrink:0;}
+.bar-track{flex:1;background:#f0f2f8;border-radius:4px;height:20px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width .4s ease;display:flex;align-items:center;padding-left:8px;}
+.bar-pct{font-size:11px;font-weight:600;color:#fff;}
+.bar-count{width:80px;text-align:right;font-size:12px;font-weight:600;color:var(--navy);}
+
+/* CRONOGRAMA */
+.crono-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.crono-card{background:var(--bg);border-radius:8px;padding:16px;border:1px solid var(--border);}
+.crono-card h4{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--navy);margin-bottom:10px;}
+.crono-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12.5px;}
+.crono-row:last-child{border-bottom:none;}
+.crono-row .val{font-weight:600;color:var(--navy);}
+
+/* INFO BOX */
+.info-box{background:#e8edf8;border-left:4px solid var(--navy);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--navy-dark);}
+.info-box.gold{background:#fff8e7;border-left-color:var(--gold);}
+
+/* TABELAS */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead th{background:var(--navy);color:#fff;padding:9px 10px;text-align:left;font-weight:600;font-size:11.5px;white-space:nowrap;}
+tbody tr:nth-child(even){background:#f7f9fc;}
+tbody tr:hover{background:#eef1fa;}
+td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.tb-footer td{background:var(--navy-dark) !important;color:#fff;font-weight:700;font-size:12px;}
+.sec-header td{background:var(--navy-dark);color:#fff;font-weight:700;font-size:12px;padding:7px 10px;}
+.sec-header2 td{background:#4a5a8e;color:#fff;font-weight:700;font-size:12px;padding:7px 10px;}
+.sec-header3 td{background:#566090;color:#fff;font-weight:700;font-size:12px;padding:7px 10px;}
+.sec-header4 td{background:#c0392b;color:#fff;font-weight:700;font-size:12px;padding:7px 10px;}
+.sec-header-mat td{background:#2d6a4f;color:#fff;font-weight:700;font-size:12px;padding:7px 10px;}
+.sec-header-serv td{background:#1a4a7c;color:#fff;font-weight:700;font-size:12px;padding:7px 10px;}
+
+/* BADGES INTERVENÇÃO */
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap;}
+.badge-insp{background:#e3f2fd;color:#1565c0;}
+.badge-feixe{background:#e8f5e9;color:#2e7d32;}
+.badge-completo{background:#fce4ec;color:#c62828;}
+.badge-retub{background:#fff3e0;color:#e65100;}
+.badge-special{background:#f3e5f5;color:#6a1b9a;}
+.badge-feixe-tipo{background:#e8edf8;color:#3d4a7c;padding:2px 7px;border-radius:10px;font-size:11px;}
+
+/* FILTROS */
+.filter-row{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.filter-row input,.filter-row select{border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--white);outline:none;}
+.filter-row input:focus,.filter-row select:focus{border-color:var(--navy);}
+.filter-row input{width:220px;}
+
+/* RESPONSABILIDADES */
+.resp-badge-pb{background:#1565c0;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;}
+.resp-badge-c3{background:#2e7d32;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;}
+.resp-ppu{font-size:11px;color:var(--text-muted);}
+
+/* MULTAS */
+.limit-card{border:2px solid var(--gold);border-radius:10px;padding:16px 20px;background:#fffdf5;margin-bottom:16px;}
+.limit-card h4{font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--navy);font-size:15px;margin-bottom:10px;}
+.limit-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0e8c0;font-size:13px;}
+.limit-row:last-child{border-bottom:none;}
+.limit-row .lv{font-weight:600;color:var(--navy);}
+
+/* RESCARCIMENTO */
+.ressarc-note{font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5;}
+
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .main{margin-left:0;}
+  .crono-grid{grid-template-columns:1fr;}
+  .kpi-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo" style="padding:18px 16px 14px">
+    <img src="data:image/png;base64,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" alt="C3 Engenharia" style="width:100%;max-width:170px;display:block;margin-bottom:10px"/>
+    <div class="logo-unit">RPBC — Permutadores</div>
+    <div class="logo-sub2">UFCC / 105 PP</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Painel</div>
+    <div class="nav-item active" onclick="goView('visao',this)">📊 Visão Geral</div>
+    <div class="nav-section">Escopo</div>
+    <div class="nav-item" onclick="goView('equip',this)">🔧 Equipamentos <span class="nav-badge">73</span></div>
+    <div class="nav-item" onclick="goView('frentes',this)">🏭 Frentes de Trabalho</div>
+    <div class="nav-section">Contrato</div>
+    <div class="nav-item" onclick="goView('ppu',this)">📋 Critérios PPU <span class="nav-badge">78</span></div>
+    <div class="nav-item" onclick="goView('resp',this)">📌 Responsabilidades</div>
+    <div class="nav-item" onclick="goView('multas',this)">⚠️ Multas Contratuais</div>
+    <div class="nav-item" onclick="goView('ressarcimento',this)">💼 Ressarcimento MO</div>
+  </div>
+  <div class="sidebar-footer">Licitação 7004601205 · RPBC<br>Parada 2027 · © C3 Engenharia</div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Dashboard Permutadores — RPBC · Licitação Nº 7004601205</div>
+      <div class="topbar-sub">Refinaria Presidente Bernardes · Cubatão/SP · Parada Programada Mar–Abr/2027 · UFCC</div>
+    </div>
+    <div class="topbar-badge">C3 Engenharia</div>
+  </div>
+
+  <div class="content">
+
+    <!-- VIEW 1 — VISÃO GERAL -->
+    <div id="view-visao" class="view active">
+
+      <div class="kpi-grid">
+        <div class="kpi navy">
+          <div class="kpi-val">73</div>
+          <div class="kpi-label">Equipamentos no Escopo</div>
+          <div class="kpi-sub">71 Permutadores · 1 Air Cooler · 1 Torre</div>
+        </div>
+        <div class="kpi navy">
+          <div class="kpi-val">1</div>
+          <div class="kpi-label">Unidade de Processo</div>
+          <div class="kpi-sub">UFCC — Craqueamento Catalítico Fluído</div>
+        </div>
+        <div class="kpi gold">
+          <div class="kpi-val">39</div>
+          <div class="kpi-label">Dias de Parada</div>
+          <div class="kpi-sub">08/Mar → 15/Abr/2027</div>
+        </div>
+        <div class="kpi gold">
+          <div class="kpi-val">42.861</div>
+          <div class="kpi-label">Tubos Movimentados</div>
+          <div class="kpi-sub">Subst. feixe + retubagem + air cooler</div>
+        </div>
+        <div class="kpi navy">
+          <div class="kpi-val">R$ 2.011.153</div>
+          <div class="kpi-label">Valor Est. PPU</div>
+          <div class="kpi-sub">Serviços referência Petrobras</div>
+        </div>
+        <div class="kpi navy">
+          <div class="kpi-val">78</div>
+          <div class="kpi-label">Itens PPU</div>
+          <div class="kpi-sub">47 serviços + 31 bens</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div class="card">
+          <div class="card-title">Composição do Escopo</div>
+          <div class="bar-row">
+            <div class="bar-label">Somente Inspeção</div>
+            <div class="bar-track"><div class="bar-fill" style="width:45.2%;background:var(--navy);"><span class="bar-pct">45,2%</span></div></div>
+            <div class="bar-count">33 equip</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Substituição de Feixe</div>
+            <div class="bar-track"><div class="bar-fill" style="width:34.2%;background:#5b6fa8;"><span class="bar-pct">34,2%</span></div></div>
+            <div class="bar-count">25 equip</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Retubagem</div>
+            <div class="bar-track"><div class="bar-fill" style="width:12.3%;background:#e67e22;"><span class="bar-pct">12,3%</span></div></div>
+            <div class="bar-count">9 equip</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Substituição Completa</div>
+            <div class="bar-track"><div class="bar-fill" style="width:6.8%;background:#c0392b;"><span class="bar-pct">6,8%</span></div></div>
+            <div class="bar-count">5 equip</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Air Cooler</div>
+            <div class="bar-track"><div class="bar-fill" style="width:1.5%;background:#7f8c9a;min-width:28px;"><span class="bar-pct">1,5%</span></div></div>
+            <div class="bar-count">1 equip</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Torre</div>
+            <div class="bar-track"><div class="bar-fill" style="width:1.5%;background:#7f8c9a;min-width:28px;"><span class="bar-pct">1,5%</span></div></div>
+            <div class="bar-count">1 equip</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Tipo de Feixe</div>
+          <div class="bar-row">
+            <div class="bar-label">Feixe Reto (flutuante/fixo)</div>
+            <div class="bar-track"><div class="bar-fill" style="width:83.6%;background:var(--navy);"><span class="bar-pct">83,6%</span></div></div>
+            <div class="bar-count">61 equip</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Feixe U</div>
+            <div class="bar-track"><div class="bar-fill" style="width:15.1%;background:#5b6fa8;"><span class="bar-pct">15,1%</span></div></div>
+            <div class="bar-count">11 equip</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Torre (N/A)</div>
+            <div class="bar-track"><div class="bar-fill" style="width:1.4%;background:#7f8c9a;min-width:28px;"><span class="bar-pct">1,4%</span></div></div>
+            <div class="bar-count">1 equip</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="crono-grid" style="margin-bottom:20px;">
+        <div class="card">
+          <div class="card-title">Mobilização</div>
+          <div class="crono-row"><span>Início</span><span class="val">14/11/2026</span></div>
+          <div class="crono-row"><span>Regime</span><span class="val">Turnos dia e noite</span></div>
+          <div class="crono-row"><span>Frentes</span><span class="val">10 frentes de caldeiraria</span></div>
+          <div class="crono-row"><span>Pico MOD</span><span class="val">461 pessoas</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Janela de Parada — UFCC</div>
+          <div class="crono-row"><span>Início</span><span class="val">08/03/2027</span></div>
+          <div class="crono-row"><span>Término</span><span class="val">15/04/2027</span></div>
+          <div class="crono-row"><span>Duração</span><span class="val">39 dias</span></div>
+          <div class="crono-row"><span>Liberação</span><span class="val">5 dias</span></div>
+          <div class="crono-row"><span>Manutenção</span><span class="val">29 dias</span></div>
+          <div class="crono-row"><span>Partida</span><span class="val">5 dias</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="max-width:420px;">
+        <div class="card-title">Efetivo Máximo</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Turno / Categoria</th><th>Pessoas</th></tr></thead>
+            <tbody>
+              <tr><td>Turno Dia</td><td><strong>260</strong></td></tr>
+              <tr><td>Turno Noite</td><td><strong>200,5</strong></td></tr>
+              <tr><td>SMS / Suporte</td><td><strong>25</strong></td></tr>
+              <tr><td style="font-weight:700;">Total</td><td style="font-weight:700;color:var(--navy);">461</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2 — EQUIPAMENTOS -->
+    <div id="view-equip" class="view">
+      <div class="card">
+        <div class="card-title">Lista de Equipamentos</div>
+        <div class="filter-row">
+          <input type="text" id="filtro-txt" placeholder="Buscar TAG / tipo…" oninput="filtrarEquip()">
+          <select id="filtro-interv" onchange="filtrarEquip()">
+            <option value="">Todos (Intervenção)</option>
+            <option value="Som. Inspeção">Somente Inspeção</option>
+            <option value="Subs. Feixe">Subs. Feixe</option>
+            <option value="Subs. Completo">Subs. Completo</option>
+            <option value="Retubagem">Retubagem</option>
+            <option value="Subs. Caixa">Air Cooler</option>
+            <option value="Manut. Torre">Torre</option>
+          </select>
+          <select id="filtro-feixe" onchange="filtrarEquip()">
+            <option value="">Todos (Feixe)</option>
+            <option value="Reto">Reto</option>
+            <option value="U">U</option>
+            <option value="N/A">N/A</option>
+          </select>
+        </div>
+        <div class="tbl-wrap">
+          <table id="tbl-equip">
+            <thead>
+              <tr>
+                <th>TAG</th>
+                <th>Tipo</th>
+                <th>Intervenção</th>
+                <th>Qtd Tubos</th>
+                <th>Compr (mm)</th>
+                <th>Feixe</th>
+                <th>Espelho</th>
+                <th>Material Tubo</th>
+                <th>Peso Verba</th>
+              </tr>
+            </thead>
+            <tbody>
+<tr><td>M-2401A</td><td>Permutador</td><td><span class="badge badge-completo">Subs. Completo</span></td><td>1.642</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr60</td><td>A179 BWG14 3/4"</td><td>1,34%</td></tr>
+<tr><td>M-2401B</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>2.151</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A516 gr60</td><td>A179 BWG14 3/4"</td><td>1,77%</td></tr>
+<tr><td>M-2401C</td><td>Permutador</td><td><span class="badge badge-completo">Subs. Completo</span></td><td>1.642</td><td>6.104</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr60</td><td>A179 BWG14 3/4"</td><td>1,34%</td></tr>
+<tr><td>M-2401D</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.694</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr60</td><td>A179 BWG14 3/4"</td><td>1,64%</td></tr>
+<tr><td>M-2401E</td><td>Permutador</td><td><span class="badge badge-completo">Subs. Completo</span></td><td>1.694</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr60</td><td>A179 BWG14 3/4"</td><td>1,35%</td></tr>
+<tr><td>M-2401F</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.694</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr60</td><td>A179 BWG14 3/4"</td><td>1,64%</td></tr>
+<tr><td>M-2402A</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2402B</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2444A</td><td>Permutador</td><td><span class="badge badge-retub">Retubagem</span></td><td>1.110</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A516 gr70</td><td>A179 BWG14 3/4"</td><td>1,76%</td></tr>
+<tr><td>M-2444B</td><td>Permutador</td><td><span class="badge badge-retub">Retubagem</span></td><td>1.110</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A516 gr70</td><td>A179 BWG14 3/4"</td><td>1,76%</td></tr>
+<tr><td>M-2404</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2405</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>480</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A516 gr60</td><td>A179 BWG14 3/4"</td><td>1,29%</td></tr>
+<tr><td>M-2406</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2449</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2450</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2451</td><td>Permutador</td><td><span class="badge badge-retub">Retubagem</span></td><td>688</td><td>14.000</td><td><span class="badge-feixe-tipo">U</span></td><td>A105</td><td>A179 BWG14 3/4"</td><td>2,01%</td></tr>
+<tr><td>M-2409A</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2409B</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2452</td><td>Permutador</td><td><span class="badge badge-retub">Retubagem</span></td><td>250</td><td>13.000</td><td><span class="badge-feixe-tipo">U</span></td><td>A516 gr70</td><td>A179 BWG14 3/4"</td><td>1,84%</td></tr>
+<tr><td>M-2453A</td><td>Permutador</td><td><span class="badge badge-retub">Retubagem</span></td><td>190</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A516 gr70</td><td>A179 BWG14 3/4"</td><td>1,49%</td></tr>
+<tr><td>M-2412A</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.052</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,46%</td></tr>
+<tr><td>M-2412B</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.052</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,46%</td></tr>
+<tr><td>M-2412C</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.052</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,46%</td></tr>
+<tr><td>M-2412D</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.052</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,46%</td></tr>
+<tr><td>M-2413A</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.328</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,53%</td></tr>
+<tr><td>M-2413B</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.328</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,53%</td></tr>
+<tr><td>M-2413C</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.328</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,53%</td></tr>
+<tr><td>M-2414A</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2414B</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>3.596</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A105</td><td>A179 BWG14 3/4"</td><td>2,19%</td></tr>
+<tr><td>M-2415A</td><td>Permutador</td><td><span class="badge badge-completo">Subs. Completo</span></td><td>960</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,14%</td></tr>
+<tr><td>M-2415B</td><td>Permutador</td><td><span class="badge badge-completo">Subs. Completo</span></td><td>960</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,14%</td></tr>
+<tr><td>M-2416A</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>876</td><td>4.880</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,35%</td></tr>
+<tr><td>M-2416B</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>876</td><td>4.880</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,35%</td></tr>
+<tr><td>M-2417</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2418A</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.280</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,52%</td></tr>
+<tr><td>M-2418B</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.280</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,52%</td></tr>
+<tr><td>M-2418C</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.280</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,52%</td></tr>
+<tr><td>M-2418D</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2418E</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2418F</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2453B</td><td>Permutador</td><td><span class="badge badge-retub">Retubagem</span></td><td>190</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A516 gr70</td><td>A179 BWG14 3/4"</td><td>1,49%</td></tr>
+<tr><td>M-2454</td><td>Permutador</td><td><span class="badge badge-retub">Retubagem</span></td><td>1.925</td><td>5.782</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A387 gr5</td><td>A213 T5 BWG14 3/4"</td><td>2,27%</td></tr>
+<tr><td>M-2420</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2422A</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.366</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,55%</td></tr>
+<tr><td>M-2422B</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.366</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,55%</td></tr>
+<tr><td>M-2422C</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>1.366</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,55%</td></tr>
+<tr><td>M-2423</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2424A</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>300</td><td>4.880</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr60/70</td><td>A179 BWG14 3/4"</td><td>1,18%</td></tr>
+<tr><td>M-2424B</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>300</td><td>4.880</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr60/70</td><td>A179 BWG14 3/4"</td><td>1,18%</td></tr>
+<tr><td>M-2425</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td><span class="badge-feixe-tipo">U</span></td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2426A</td><td>Permutador</td><td><span class="badge badge-retub">Retubagem</span></td><td>716</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A240 304L</td><td>A213 304L BWG18 3/4"</td><td>1,93%</td></tr>
+<tr><td>M-2426B</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2429</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2430</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>630</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,33%</td></tr>
+<tr><td>M-2431</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>580</td><td>6.096</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,32%</td></tr>
+<tr><td>M-2432</td><td>Permutador</td><td><span class="badge badge-feixe">Subs. Feixe</span></td><td>122</td><td>4.880</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A515 gr70</td><td>A179 BWG14 3/4"</td><td>1,13%</td></tr>
+<tr><td>M-2433</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2434</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td><span class="badge-feixe-tipo">U</span></td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2435</td><td>Permutador</td><td><span class="badge badge-retub">Retubagem</span></td><td>200</td><td>—</td><td><span class="badge-feixe-tipo">U</span></td><td>—</td><td>Latão B-111 BWG16</td><td>1,79%</td></tr>
+<tr><td>M-2438</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2460</td><td>Air Cooler</td><td><span class="badge badge-special">Subs. Caixa</span></td><td>155</td><td>12.000</td><td><span class="badge-feixe-tipo">Reto</span></td><td>A516 gr60</td><td>A179 BWG12 1" alet.</td><td>1,19%</td></tr>
+<tr><td>M-2461</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2466</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2475A</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2475B</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2477</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td><span class="badge-feixe-tipo">U</span></td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2801A</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td><span class="badge-feixe-tipo">U</span></td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2801B</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td><span class="badge-feixe-tipo">U</span></td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2801C</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td><span class="badge-feixe-tipo">U</span></td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2801D</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td><span class="badge-feixe-tipo">U</span></td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2801E</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td><span class="badge-feixe-tipo">U</span></td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>M-2804</td><td>Permutador</td><td><span class="badge badge-insp">Som. Inspeção</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0,86%</td></tr>
+<tr><td>K-2801</td><td>Torre Resf.</td><td><span class="badge badge-special">Manut. Torre</span></td><td>—</td><td>—</td><td><span class="badge-feixe-tipo">N/A</span></td><td>—</td><td>—</td><td>11,52%</td></tr>
+            </tbody>
+            <tfoot>
+              <tr class="tb-footer"><td colspan="3">TOTAL</td><td>73 equipamentos</td><td colspan="4">42.861 tubos totais</td><td></td></tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 3 — FRENTES DE TRABALHO -->
+    <div id="view-frentes" class="view">
+      <div class="card">
+        <div class="card-title">10 Frentes de Trabalho</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Frente</th><th>Equipamentos</th><th>Qtd</th><th>Observação</th></tr></thead>
+            <tbody>
+              <tr><td><strong>F1</strong></td><td>K-2801</td><td>1</td><td>Torre de Resfriamento (serviço especial)</td></tr>
+              <tr><td><strong>F2</strong></td><td>M-2401A/B/C/D/E/F · M-2402A/B</td><td>8</td><td>5 subs. completa + 3 subs. feixe/inspeção</td></tr>
+              <tr><td><strong>F3</strong></td><td>M-2444A/B · M-2404/05/06 · M-2449/50/51</td><td>8</td><td>Mistura inspeção e retubagem</td></tr>
+              <tr><td><strong>F4</strong></td><td>M-2409A/B · M-2452 · M-2453A · M-2412A/B/C/D</td><td>8</td><td>Feixe U + Reto</td></tr>
+              <tr><td><strong>F5</strong></td><td>M-2413A/B/C · M-2414A/B · M-2415A/B · M-2416A/B</td><td>9</td><td>Maioria subs. feixe</td></tr>
+              <tr><td><strong>F6</strong></td><td>M-2417 · M-2418A/B/C/D/E/F · M-2453B</td><td>8</td><td>Subs. feixe + inspeção</td></tr>
+              <tr><td><strong>F7</strong></td><td>M-2454 · M-2420 · M-2422A/B/C · M-2423/24A/B</td><td>8</td><td>Material especial (A213 T5)</td></tr>
+              <tr><td><strong>F8</strong></td><td>M-2425/26A/B · M-2429/30/31/32/33</td><td>8</td><td>Misto feixe U e Reto</td></tr>
+              <tr><td><strong>F9</strong></td><td>M-2434/35/38/60/61/66 · M-2475A/B</td><td>8</td><td>Air cooler + feixe U</td></tr>
+              <tr><td><strong>F10</strong></td><td>M-2477 · M-2801A/B/C/D/E · M-2804</td><td>7</td><td>Feixe U (sistema 2801)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="max-width:480px;">
+        <div class="card-title">Equipe por Frente</div>
+        <div class="crono-row"><span>Caldeireiros/Montadores — Turno Dia</span><span class="val">80 por frente</span></div>
+        <div class="crono-row"><span>Caldeireiros/Montadores — Turno Noite</span><span class="val">52 por frente</span></div>
+        <div class="crono-row"><span>Encarregados de Caldeiraria</span><span class="val">16,5 por frente</span></div>
+      </div>
+    </div>
+
+    <!-- VIEW 4 — CRITÉRIOS PPU -->
+    <div id="view-ppu" class="view">
+
+      <div class="card">
+        <div class="card-title">Serviços PPU (PPU S) — 47 Itens</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Item</th><th>Descrição</th><th>Unidade</th><th>Qtd Est.</th></tr></thead>
+            <tbody>
+              <tr class="sec-header"><td colspan="4">1 — VERBAS</td></tr>
+              <tr><td>1.1.1</td><td>Infraestrutura básica para serviços</td><td>Verba</td><td>1</td></tr>
+              <tr><td>1.2.1</td><td>Gestão da execução do contrato</td><td>Verba</td><td>1</td></tr>
+              <tr><td>1.3.1</td><td>Serviços de manutenção em pré-parada</td><td>Verba</td><td>1</td></tr>
+              <tr><td>1.4.1</td><td>Serviços de manutenção em parada</td><td>Verba</td><td>1</td></tr>
+              <tr><td>1.5.1</td><td>Serviços de manutenção em pós-parada</td><td>Verba</td><td>1</td></tr>
+              <tr class="sec-header2"><td colspan="4">2 — EQUIPAMENTOS E MÁQUINAS</td></tr>
+              <tr><td>2.1</td><td>Compressor de ar 150–900 PCM</td><td>Cap(PCM) × Diária 24h</td><td>100.000</td></tr>
+              <tr><td>2.2</td><td>Operação do elevador (equip+operador)</td><td>Diária 10h</td><td>60</td></tr>
+              <tr><td>2.3</td><td>Usinagem de campo (operador+equip)</td><td>Diária 10h</td><td>60</td></tr>
+              <tr><td>2.4</td><td>Usinagem em oficina externa</td><td>hora-máquina</td><td>300</td></tr>
+              <tr><td>2.5</td><td>Torre de iluminação</td><td>Diária 10h</td><td>260</td></tr>
+              <tr><td>2.6</td><td>Tratamento Térmico — juntas tratadas</td><td>UN</td><td>15</td></tr>
+              <tr><td>2.7</td><td>Tratamento Térmico — equipamentos</td><td>m²</td><td>50</td></tr>
+              <tr><td>2.8</td><td>Gerador 100–500 kVA</td><td>Cap(kVA) × Diária 24h</td><td>100.000</td></tr>
+              <tr><td>2.9</td><td>Remoção isolamento térmico (módulo fibra)</td><td>m³</td><td>240</td></tr>
+              <tr><td>2.10</td><td>Remoção de fireproofing</td><td>m³</td><td>8</td></tr>
+              <tr><td>2.11</td><td>Aplicação isolamento térmico (módulo fibra)</td><td>m³</td><td>240</td></tr>
+              <tr><td>2.12</td><td>Aplicação de fireproofing</td><td>m³</td><td>8</td></tr>
+              <tr><td>2.13</td><td>Hidrojato automatizado (equip+equipe)</td><td>Diária 10h</td><td>192</td></tr>
+              <tr><td>2.14</td><td>Hidrojato semi-automatizado (equip+equipe)</td><td>Diária 10h</td><td>192</td></tr>
+              <tr><td>2.15</td><td>Hidrojato convencional alta pressão 20.000 psi</td><td>Diária 10h</td><td>120</td></tr>
+              <tr><td>2.16</td><td>Hidrojato convencional ultra-alta pressão 40.000 psi</td><td>Diária 10h</td><td>80</td></tr>
+              <tr><td>2.17</td><td>IRIS — Tubo inspecionado</td><td>m</td><td>45.000</td></tr>
+              <tr><td>2.18</td><td>Correntes parasitas — Tubo inspecionado</td><td>m</td><td>22.000</td></tr>
+              <tr><td>2.19</td><td>Limpeza superfície jato abrasivo Sa 2,5</td><td>m²</td><td>250</td></tr>
+              <tr><td>2.20</td><td>Aplicação tintas de fundo (c/ prep. superfície)</td><td>m²</td><td>7.500</td></tr>
+              <tr><td>2.21</td><td>Aplicação tintas de acabamento (c/ prep. superfície)</td><td>m²</td><td>7.500</td></tr>
+              <tr><td>2.22</td><td>Plataforma elevatória</td><td>Diária 10h</td><td>20</td></tr>
+              <tr><td>2.23</td><td>Serviços de caldeiraria externa</td><td>HS</td><td>2.000</td></tr>
+              <tr><td>2.24</td><td>Serviços de soldagem externa</td><td>HS</td><td>1.200</td></tr>
+              <tr><td>2.25</td><td>Fabricação estruturas metálicas aço carbono</td><td>kg</td><td>1.500</td></tr>
+              <tr><td>2.26</td><td>Retubagem — tubo feixe reto c/ espelho flutuante/fixo</td><td>UN</td><td>30.000</td></tr>
+              <tr><td>2.27</td><td>Retubagem — tubo feixe tipo U</td><td>UN</td><td>10.000</td></tr>
+              <tr><td>2.28</td><td>Retubagem — tubo aircooler</td><td>UN</td><td>3.000</td></tr>
+              <tr><td>2.29</td><td>Selagem ou solda de resistência tubos c/ espelho</td><td>UN</td><td>2.500</td></tr>
+              <tr><td>2.30</td><td>Decapagem de feixes de trocador de calor</td><td>UN</td><td>7.000</td></tr>
+              <tr><td>2.31</td><td>Corte, remoção de tubos e recuperação de espelhos</td><td>UN</td><td>50</td></tr>
+              <tr><td>2.32</td><td>Torqueamento com torque controlado</td><td>Diária 10h</td><td>260</td></tr>
+              <tr><td>2.33</td><td>Torqueamento com tensionador</td><td>Diária 10h</td><td>80</td></tr>
+              <tr><td>2.34</td><td>Sistema de ar respirável</td><td>Diária 10h</td><td>20</td></tr>
+              <tr><td>2.35</td><td>Caminhão abastecimento 15 mil litros (oper+equip)</td><td>Diária 10h</td><td>80</td></tr>
+              <tr><td>2.36</td><td>Mobilização e desmobilização de tenda</td><td>VB</td><td>3</td></tr>
+              <tr><td>2.37</td><td>Tenda</td><td>m² × Semana</td><td>500</td></tr>
+              <tr><td>2.38</td><td>Empilhadeira 4t</td><td>Diária 10h</td><td>100</td></tr>
+              <tr><td>2.39</td><td>Empilhadeira 8t</td><td>Diária 10h</td><td>100</td></tr>
+              <tr><td>2.40</td><td>Guindaste 2t (drott)</td><td>Diária 10h</td><td>50</td></tr>
+              <tr><td>2.41</td><td>Guindaste 8t (drott)</td><td>Diária 10h</td><td>50</td></tr>
+              <tr><td>2.42</td><td>Guindaste 16t (drott)</td><td>Diária 10h</td><td>50</td></tr>
+              <tr><td>2.43</td><td>Mobilização guindastes 30–120t</td><td>VB</td><td>3</td></tr>
+              <tr><td>2.44</td><td>Guindaste 30–120t</td><td>Diária(10h) × Capacidade(ton)</td><td>14.000</td></tr>
+              <tr><td>2.45</td><td>Saca-feixe aéreo convencional</td><td>Diária 10h</td><td>420</td></tr>
+              <tr><td>2.46</td><td>Saca-feixe aéreo autopropelido</td><td>Diária 10h</td><td>180</td></tr>
+              <tr><td>2.47</td><td>Serviços com caminhão vácuo</td><td>Diária 10h</td><td>40</td></tr>
+              <tr class="sec-header3"><td colspan="4">3 — UNIDADES DE SERVIÇO (US)</td></tr>
+              <tr><td>3.1</td><td>Atividade de caldeiraria (caldeireiro/montador)</td><td>US</td><td>11.944</td></tr>
+              <tr><td>3.2</td><td>Atividade de soldagem (ER/TIG/MIG/MAG)</td><td>US</td><td>2.389</td></tr>
+              <tr><td>3.3</td><td>Atividade de pintura (pintor/jatista/airless)</td><td>US</td><td>2.389</td></tr>
+              <tr><td>3.4</td><td>Atividades de eletricidade</td><td>US</td><td>1.194</td></tr>
+              <tr><td>3.5</td><td>Atividade de montagem e desmontagem de andaime</td><td>US</td><td>7.167</td></tr>
+              <tr><td>3.6</td><td>Atividade de manutenção complementar (aux/servente)</td><td>US</td><td>4.778</td></tr>
+              <tr><td>3.7</td><td>Atividade de inspeção (inspetor equip/solda/LP/PM/US)</td><td>US</td><td>2.986</td></tr>
+              <tr><td>3.8</td><td>Atividades de fabricação, adequação e instalação tubing</td><td>US</td><td>597</td></tr>
+              <tr><td>3.9</td><td>Atividade de alpinismo de manutenção (caldeireiro)</td><td>US</td><td>1.792</td></tr>
+              <tr><td>3.10</td><td>Atividade de alpinismo de inspeção</td><td>US</td><td>597</td></tr>
+              <tr><td>3.11</td><td>Atividade de alpinismo complementar (pintor/isolador)</td><td>US</td><td>1.792</td></tr>
+              <tr class="sec-header4"><td colspan="4">4 — EVENTOS ESPECIAIS</td></tr>
+              <tr><td>4.1</td><td>Serviços paralisados — adiamento/cancelamento de parada</td><td>Verba</td><td>1</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Bens PPU (PPU B) — 31 Itens</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Item</th><th>Descrição</th><th>Unidade</th><th>Qtd Est.</th></tr></thead>
+            <tbody>
+              <tr><td>10</td><td>Chapa de aço carbono A36/A283 esp. até 3/8"</td><td>kg</td><td>5.000</td></tr>
+              <tr><td>20</td><td>Chapa de aço carbono A36/A283 esp. 1/2" a 1"</td><td>kg</td><td>5.000</td></tr>
+              <tr><td>30</td><td>Chapa de aço carbono A36/A283 esp. &gt; 1"</td><td>kg</td><td>2.000</td></tr>
+              <tr><td>40</td><td>Perfil estrutural de aço carbono (cantoneiras, perfis U/I)</td><td>kg</td><td>3.000</td></tr>
+              <tr><td>50</td><td>Tubo de aço carbono (sem costura / com costura)</td><td>kg</td><td>2.000</td></tr>
+              <tr><td>60</td><td>Parafusos, porcas e arruelas aço carbono (granel)</td><td>kg</td><td>3.000</td></tr>
+              <tr><td>70</td><td>Parafusos e porcas aço inoxidável (granel)</td><td>kg</td><td>500</td></tr>
+              <tr><td>80</td><td>Parafusos e porcas liga especial (Monel, Inconel etc.)</td><td>kg</td><td>200</td></tr>
+              <tr><td>90</td><td>Flanges aço carbono classe 150 a 900</td><td>UN</td><td>200</td></tr>
+              <tr><td>100</td><td>Flanges aço carbono classe 1500 a 2500</td><td>UN</td><td>50</td></tr>
+              <tr><td>110</td><td>Flanges aço inoxidável / liga especial</td><td>UN</td><td>50</td></tr>
+              <tr><td>120</td><td>Juntas de vedação espiro-metálicas</td><td>UN</td><td>500</td></tr>
+              <tr><td>130</td><td>Juntas de vedação RTJ (ring type joint)</td><td>UN</td><td>100</td></tr>
+              <tr><td>140</td><td>Juntas planas de aço carbono / inox</td><td>UN</td><td>200</td></tr>
+              <tr><td>150</td><td>Anéis de vedação kammprofile</td><td>UN</td><td>100</td></tr>
+              <tr><td>160</td><td>Tubos de troca térmica A179 BWG14 3/4" (carbono)</td><td>m</td><td>180.000</td></tr>
+              <tr><td>170</td><td>Tubos de troca térmica A179 BWG14 1" (carbono)</td><td>m</td><td>10.000</td></tr>
+              <tr><td>180</td><td>Tubos de troca térmica A213 T5 (Cr-Mo)</td><td>m</td><td>15.000</td></tr>
+              <tr><td>190</td><td>Tubos de troca térmica A213 304L BWG18 3/4" (inox)</td><td>m</td><td>5.000</td></tr>
+              <tr><td>200</td><td>Plugues para espelho (carbono)</td><td>UN</td><td>5.000</td></tr>
+              <tr><td>210</td><td>Plugues para espelho (inoxidável)</td><td>UN</td><td>500</td></tr>
+              <tr><td>220</td><td>Plugues para espelho (liga especial)</td><td>UN</td><td>100</td></tr>
+              <tr><td>230</td><td>Feixe completo trocador de calor — pequeno (até 5t)</td><td>UN</td><td>15</td></tr>
+              <tr><td>240</td><td>Feixe completo trocador de calor — médio (5–15t)</td><td>UN</td><td>30</td></tr>
+              <tr><td>250</td><td>Feixe completo trocador de calor — grande (&gt; 15t)</td><td>UN</td><td>10</td></tr>
+              <tr><td>260</td><td>Feixe completo air cooler</td><td>UN</td><td>1</td></tr>
+              <tr><td>270</td><td>Anéis de teste hidrostático (flange cego + juntas)</td><td>UN</td><td>50</td></tr>
+              <tr><td>280</td><td>Manta cerâmica para isolamento térmico (módulo)</td><td>m³</td><td>120</td></tr>
+              <tr><td>290</td><td>Lã de rocha / lã de vidro (isolamento)</td><td>m³</td><td>120</td></tr>
+              <tr><td>300</td><td>Chapa de alumínio (chapisco de isolamento)</td><td>m²</td><td>500</td></tr>
+              <tr><td>310</td><td>Tinta de fundo epóxi + acabamento poliuretano (kit)</td><td>lata 18L</td><td>200</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 5 — RESPONSABILIDADES -->
+    <div id="view-resp" class="view">
+      <div class="info-box">
+        A matriz abaixo apresenta as responsabilidades por categoria de material e serviço conforme a estrutura contratual da Petrobras (Licitação 7004601205). Itens marcados como "COM PPU" são medidos e faturados pelos critérios PPU do contrato; itens "SEM PPU" estão incluídos no BDI da contratada.
+      </div>
+      <div class="card">
+        <div class="card-title">Matriz de Responsabilidades</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Categoria</th><th>Material / Serviço</th><th>Responsável</th><th>PPU?</th></tr></thead>
+            <tbody>
+              <tr class="sec-header-mat"><td colspan="4">MATERIAIS DE REPOSIÇÃO</td></tr>
+              <tr><td>Tubos</td><td>Tubos de troca térmica</td><td><span class="resp-badge-pb">Petrobras</span></td><td><span class="resp-ppu">COM PPU (itens 160–190)</span></td></tr>
+              <tr><td>Feixes</td><td>Feixes completos</td><td><span class="resp-badge-pb">Petrobras</span></td><td><span class="resp-ppu">COM PPU (itens 230–260)</span></td></tr>
+              <tr><td>Vedação</td><td>Plugues especiais para espelho</td><td><span class="resp-badge-pb">Petrobras</span></td><td><span class="resp-ppu">COM PPU (itens 200–220)</span></td></tr>
+              <tr><td>Isolamento</td><td>Isolamento térmico (manta/lã)</td><td><span class="resp-badge-pb">Petrobras</span></td><td><span class="resp-ppu">COM PPU (itens 280–310)</span></td></tr>
+              <tr><td>Estrutural</td><td>Chapas e perfis de aço</td><td><span class="resp-badge-pb">Petrobras</span></td><td><span class="resp-ppu">COM PPU (itens 10–50)</span></td></tr>
+              <tr><td>Vedação</td><td>Anéis de teste hidrostático</td><td><span class="resp-badge-pb">Petrobras</span></td><td><span class="resp-ppu">COM PPU (item 270)</span></td></tr>
+              <tr><td>Consumíveis</td><td>Consumíveis de solda (eletrodos/arames)</td><td><span class="resp-badge-c3">Contratada</span></td><td><span class="resp-ppu">SEM PPU (no BDI)</span></td></tr>
+              <tr><td>Consumíveis</td><td>EPI e materiais de segurança</td><td><span class="resp-badge-c3">Contratada</span></td><td><span class="resp-ppu">SEM PPU (no BDI)</span></td></tr>
+              <tr class="sec-header-serv"><td colspan="4">SERVIÇOS</td></tr>
+              <tr><td>Caldeiraria</td><td>Caldeiraria e montagem</td><td><span class="resp-badge-c3">Contratada</span></td><td><span class="resp-ppu">COM PPU (US 3.1)</span></td></tr>
+              <tr><td>Soldagem</td><td>Soldagem (ER/TIG/MIG/MAG)</td><td><span class="resp-badge-c3">Contratada</span></td><td><span class="resp-ppu">COM PPU (US 3.2)</span></td></tr>
+              <tr><td>Pintura</td><td>Pintura industrial e jateamento</td><td><span class="resp-badge-c3">Contratada</span></td><td><span class="resp-ppu">COM PPU (US 3.3)</span></td></tr>
+              <tr><td>Andaimes</td><td>Montagem e desmontagem de andaimes</td><td><span class="resp-badge-c3">Contratada</span></td><td><span class="resp-ppu">COM PPU (US 3.5)</span></td></tr>
+              <tr><td>Inspeção</td><td>Inspeção e END (LP/PM/ME/IRIS/EC)</td><td><span class="resp-badge-c3">Contratada</span></td><td><span class="resp-ppu">COM PPU (US 3.7 + 2.17 + 2.18)</span></td></tr>
+              <tr><td>Limpeza</td><td>Limpeza por hidrojato</td><td><span class="resp-badge-c3">Contratada</span></td><td><span class="resp-ppu">COM PPU (itens 2.13–2.16)</span></td></tr>
+              <tr><td>T. Térmico</td><td>Tratamento térmico de juntas e equip.</td><td><span class="resp-badge-c3">Contratada</span></td><td><span class="resp-ppu">COM PPU (itens 2.6–2.7)</span></td></tr>
+              <tr><td>Isolamento</td><td>Aplicação de isolamento e fireproofing</td><td><span class="resp-badge-c3">Contratada</span></td><td><span class="resp-ppu">COM PPU (itens 2.9–2.12)</span></td></tr>
+              <tr><td>Movimentação</td><td>Guindastes e movimentação de carga</td><td><span class="resp-badge-c3">Contratada</span></td><td><span class="resp-ppu">COM PPU (itens 2.38–2.46)</span></td></tr>
+              <tr><td>Gestão</td><td>Gestão e infraestrutura de canteiro</td><td><span class="resp-badge-c3">Contratada</span></td><td><span class="resp-ppu">COM PPU (Verbas 1.1–1.5)</span></td></tr>
+              <tr><td>Alpinismo</td><td>Alpinismo industrial (manutenção/inspeção)</td><td><span class="resp-badge-c3">Contratada</span></td><td><span class="resp-ppu">COM PPU (US 3.9–3.11)</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 6 — MULTAS CONTRATUAIS -->
+    <div id="view-multas" class="view">
+      <div class="info-box">
+        As multas contratuais são baseadas na Minuta Contratual (Adendo A) da Licitação 7004601205 — Petrobras RPBC. Os percentuais são aplicados sobre o valor global do contrato.
+      </div>
+      <div class="limit-card">
+        <h4>Limites Contratuais</h4>
+        <div class="limit-row"><span>Limite máximo acumulado de multas</span><span class="lv">10% do valor do contrato</span></div>
+        <div class="limit-row"><span>Advertências antes de multa compensatória</span><span class="lv">3 ocorrências</span></div>
+        <div class="limit-row"><span>BDI aplicado C3 Engenharia</span><span class="lv">32,83%</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Tipos de Multa</div>
+        <div class="info-box" style="margin-bottom:12px;font-size:12px;">Valores de referência baseados no contrato padrão Petrobras para manutenção em paradas — confirmar com a Minuta Contratual definitiva.</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Tipo</th><th>Evento</th><th>% por Ocorrência</th><th>Limite</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge badge-retub">MORATÓRIA</span></td><td>Atraso na entrega de equipamentos / relatórios</td><td>0,1% / dia</td><td>2% do contrato</td></tr>
+              <tr><td><span class="badge badge-retub">MORATÓRIA</span></td><td>Atraso na mobilização de funções obrigatórias</td><td>0,19% a 5,19% (conforme função)</td><td>10% do contrato</td></tr>
+              <tr><td><span class="badge badge-completo">COMPENSATÓRIA</span></td><td>Não cumprimento de obrigação contratual</td><td>1%</td><td>10% do contrato</td></tr>
+              <tr><td><span class="badge badge-completo">COMPENSATÓRIA</span></td><td>Reincidência após advertência</td><td>2%</td><td>10% do contrato</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Desconto por Deficiência de Mobilização — Tabela por Função</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Função</th><th>% de Desconto por Ausência</th></tr></thead>
+            <tbody>
+              <tr><td>Coordenador/Supervisor de Planejamento</td><td><strong>1,39%</strong></td></tr>
+              <tr><td>Técnico de Planejamento</td><td><strong>0,19%</strong></td></tr>
+              <tr><td>Auxiliar de Planejamento</td><td><strong>0,32%</strong></td></tr>
+              <tr><td>Técnico de Documentação</td><td><strong>0,45%</strong></td></tr>
+              <tr><td>Engenheiro de Segurança</td><td><strong>3,12%</strong></td></tr>
+              <tr><td>Técnico de Segurança</td><td><strong>0,91%</strong></td></tr>
+              <tr><td>Coordenador/Supervisor de Materiais</td><td><strong>2,60%</strong></td></tr>
+              <tr><td>Técnico de Materiais</td><td><strong>0,52%</strong></td></tr>
+              <tr><td>Auxiliar de Materiais</td><td><strong>0,35%</strong></td></tr>
+              <tr><td>Coordenador/Supervisor de Qualidade</td><td><strong>4,16%</strong></td></tr>
+              <tr><td>Inspetor de Equipamentos</td><td><strong>1,82%</strong></td></tr>
+              <tr><td>Inspetor de Soldagem</td><td><strong>1,82%</strong></td></tr>
+              <tr><td>Inspetor ENDs (LP/PM/ME)</td><td><strong>0,45%</strong></td></tr>
+              <tr><td>Inspetor de Pintura</td><td><strong>1,82%</strong></td></tr>
+              <tr><td>Coordenador de Campo</td><td><strong>5,19%</strong></td></tr>
+              <tr><td>Supervisor de Produção</td><td><strong>3,12%</strong></td></tr>
+              <tr><td>Encarregado de Caldeiraria</td><td><strong>2,34%</strong></td></tr>
+              <tr><td>Encarregado de Andaime</td><td><strong>2,34%</strong></td></tr>
+              <tr><td>Encarregado Complementar</td><td><strong>2,34%</strong></td></tr>
+              <tr><td>Técnico de Elétrica</td><td><strong>1,82%</strong></td></tr>
+              <tr><td>Eletricista</td><td><strong>1,30%</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 7 — RESSARCIMENTO MO -->
+    <div id="view-ressarcimento" class="view">
+      <p class="ressarc-note">Tabela de valores mensais por função para ressarcimento em caso de adiamento ou cancelamento da parada, conforme Especificação Técnica (Anexo 1) da Licitação 7004601205 — RPBC/Petrobras.</p>
+      <div class="card">
+        <div class="card-title">Tabela de Ressarcimento — Mão de Obra (48 Funções)</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Função</th><th>Valor Mensal (R$)</th></tr></thead>
+            <tbody>
+              <tr><td>Alpinista</td><td><strong>R$ 6.486,88</strong></td></tr>
+              <tr><td>Auxiliar de Almoxarife</td><td><strong>R$ 3.519,26</strong></td></tr>
+              <tr><td>Auxiliar de Materiais</td><td><strong>R$ 3.519,26</strong></td></tr>
+              <tr><td>Auxiliar de Planejamento</td><td><strong>R$ 4.334,22</strong></td></tr>
+              <tr><td>Auxiliar de Segurança</td><td><strong>R$ 3.698,33</strong></td></tr>
+              <tr><td>Auxiliar de Serviços</td><td><strong>R$ 2.723,95</strong></td></tr>
+              <tr><td>Caldeireiro</td><td><strong>R$ 5.082,02</strong></td></tr>
+              <tr><td>Desenhista Projetista</td><td><strong>R$ 10.409,48</strong></td></tr>
+              <tr><td>Eletricista</td><td><strong>R$ 5.041,33</strong></td></tr>
+              <tr><td>Encarregado de Andaime</td><td><strong>R$ 9.412,69</strong></td></tr>
+              <tr><td>Encarregado Complementar</td><td><strong>R$ 9.412,69</strong></td></tr>
+              <tr><td>Encarregado de Caldeiraria</td><td><strong>R$ 9.412,69</strong></td></tr>
+              <tr><td>Encarregado de Elétrica</td><td><strong>R$ 9.412,69</strong></td></tr>
+              <tr><td>Encarregado de Isolamento</td><td><strong>R$ 9.412,69</strong></td></tr>
+              <tr><td>Encarregado de Solda</td><td><strong>R$ 9.412,69</strong></td></tr>
+              <tr><td>Engenheiro de Segurança</td><td><strong>R$ 12.330,72</strong></td></tr>
+              <tr><td>Engenheiro de Campo</td><td><strong>R$ 10.755,51</strong></td></tr>
+              <tr><td>Coord. de Controle de Qualidade</td><td><strong>R$ 13.744,90</strong></td></tr>
+              <tr><td>Coord. de Materiais</td><td><strong>R$ 13.744,90</strong></td></tr>
+              <tr><td>Coord. de Planejamento</td><td><strong>R$ 13.744,90</strong></td></tr>
+              <tr><td>Coordenador de Produção</td><td><strong>R$ 13.744,90</strong></td></tr>
+              <tr><td>Ferramenteiro</td><td><strong>R$ 4.705,58</strong></td></tr>
+              <tr><td>Funileiro</td><td><strong>R$ 5.277,88</strong></td></tr>
+              <tr><td>Inspetor de Equipamentos</td><td><strong>R$ 9.882,67</strong></td></tr>
+              <tr><td>Inspetor de Pintura</td><td><strong>R$ 9.882,67</strong></td></tr>
+              <tr><td>Inspetor de Solda e ENDs</td><td><strong>R$ 9.882,67</strong></td></tr>
+              <tr><td>Instrumentista</td><td><strong>R$ 5.041,33</strong></td></tr>
+              <tr><td>Isolador</td><td><strong>R$ 5.041,33</strong></td></tr>
+              <tr><td>Líder de Movimentação de Carga</td><td><strong>R$ 5.041,33</strong></td></tr>
+              <tr><td>Montador de Andaime</td><td><strong>R$ 5.041,33</strong></td></tr>
+              <tr><td>Motorista de Carreta</td><td><strong>R$ 5.041,33</strong></td></tr>
+              <tr><td>Motorista Munck</td><td><strong>R$ 5.219,38</strong></td></tr>
+              <tr><td>Observador</td><td><strong>R$ 3.519,26</strong></td></tr>
+              <tr><td>Operador de Saca-feixe</td><td><strong>R$ 5.996,23</strong></td></tr>
+              <tr><td>Pintor Industrial</td><td><strong>R$ 3.911,99</strong></td></tr>
+              <tr><td>Refratarista</td><td><strong>R$ 4.362,20</strong></td></tr>
+              <tr><td>Rigger</td><td><strong>R$ 5.041,33</strong></td></tr>
+              <tr><td>Soldador</td><td><strong>R$ 6.476,55</strong></td></tr>
+              <tr><td>Supervisor Complementar</td><td><strong>R$ 12.118,13</strong></td></tr>
+              <tr><td>Supervisor de Andaime</td><td><strong>R$ 12.118,13</strong></td></tr>
+              <tr><td>Supervisor de Caldeiraria</td><td><strong>R$ 12.118,13</strong></td></tr>
+              <tr><td>Supervisor de Solda</td><td><strong>R$ 12.118,13</strong></td></tr>
+              <tr><td>Técnico de Controle de Qualidade</td><td><strong>R$ 9.219,01</strong></td></tr>
+              <tr><td>Técnico de Documentação</td><td><strong>R$ 5.041,33</strong></td></tr>
+              <tr><td>Técnico de Materiais</td><td><strong>R$ 6.024,64</strong></td></tr>
+              <tr><td>Técnico de Planejamento</td><td><strong>R$ 8.539,85</strong></td></tr>
+              <tr><td>Técnico de Segurança do Trabalho</td><td><strong>R$ 6.024,64</strong></td></tr>
+              <tr><td>Técnico de Suprimento</td><td><strong>R$ 9.265,49</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+function goView(id, el) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.getElementById('view-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+
+function filtrarEquip() {
+  var txt = document.getElementById('filtro-txt').value.toLowerCase();
+  var interv = document.getElementById('filtro-interv').value;
+  var feixe = document.getElementById('filtro-feixe').value;
+  document.querySelectorAll('#tbl-equip tbody tr').forEach(function(tr) {
+    var tag = tr.cells[0].textContent.toLowerCase();
+    var tipo = tr.cells[1].textContent.toLowerCase();
+    var intervCell = tr.cells[2].textContent;
+    var feixeCell = tr.cells[5].textContent;
+    var ok = true;
+    if (txt && tag.indexOf(txt) === -1 && tipo.indexOf(txt) === -1) ok = false;
+    if (interv && intervCell.indexOf(interv) === -1) ok = false;
+    if (feixe && feixeCell.indexOf(feixe) === -1) ok = false;
+    tr.style.display = ok ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>
